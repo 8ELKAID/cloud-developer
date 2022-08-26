@@ -18,13 +18,34 @@ router.get('/', async (req: Request, res: Response) => {
 
 //@TODO
 //Add an endpoint to GET a specific resource by Primary Key
+router.get('/:id',
+requireAuth,
+
+async(req: Request, res: Response)=>{
+    let {id} = req.params;
+    const itemNeed = await FeedItem.findByPk(id)
+    if(!itemNeed){
+        return  res.status(404).send('the item  of id = '+id+' does not exist') ;}
+
+    if(itemNeed.url ){
+    itemNeed.url = AWS.getGetSignedUrl(itemNeed.url);
+     }
+    return res.status(200).send(itemNeed)
+    });
 
 // update a specific resource
 router.patch('/:id', 
     requireAuth, 
     async (req: Request, res: Response) => {
+        let {id} = req.params;
+    const itemNeed = await FeedItem.findByPk(id)
+    if(!itemNeed){
+        return  res.status(404).send('the item  of id = '+id+' does not exist') ;}
+   
+        const itemUpdate = req.body
+       const item = await itemNeed.update(itemUpdate)
         //@TODO try it yourself
-        res.status(500).send("not implemented")
+        res.status(200).send(item)
 });
 
 
